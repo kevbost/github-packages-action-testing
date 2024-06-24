@@ -5,4 +5,5 @@ module.exports = {
   test3: "Hello World 3",
   test4: "Hello World 4",
   test5: "Hello World 5",
+  test6: "Hello World 6",
 };
