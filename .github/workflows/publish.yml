@@ -95,9 +95,15 @@ jobs:
           # Use the version_type output from the previous step to bump the correct version
           VERSION_TYPE=${{ steps.version.outputs.version_type }}
           npm version $VERSION_TYPE
+
+      - name: 🏷️ Commit version bump
+        run: |
           git add .
-          git commit -m "chore: bump version" # Ensure it doesn't fail if there's nothing to commit
-          git push --all
+          git commit -m "chore: bump version"
+
+      - name: 📜 Push changes
+        run: |
+          git push origin main
 
       - name: 📭 Publish package to GitHub Package Registry
         run: npm publish
