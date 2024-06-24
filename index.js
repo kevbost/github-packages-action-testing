@@ -1,3 +1,5 @@
-const { test } = require("./src/testFile");
+const testFile = require("./src/testFile");
 
-console.log(test);
+Object.keys(testFile).map((key) => {
+  console.log(testFile[key]);
+});
