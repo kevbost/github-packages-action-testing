@@ -15,5 +15,8 @@
     "url": "https://github.com/kevbost/github-packages-action-testing/issues"
   },
   "homepage": "https://github.com/kevbost/github-packages-action-testing#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "semver": "^7.6.2"
+  }
 }
