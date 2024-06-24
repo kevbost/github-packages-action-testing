@@ -29,6 +29,13 @@ jobs:
       - name: 🔄 Bump version
         run: node scripts/bump-version.js
 
+      - name: 🏷️ Commit version bump
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add package.json
+          git commit -m "chore: bump version" || exit 0  # Ensure it doesn't fail if there's nothing to commit
+
       - name: 🏷️ Check for new version
         uses: EndBug/version-check@v2
         id: check
@@ -43,10 +50,6 @@ jobs:
       - name: 📬 Commit version bump
         if: steps.check.outputs.changed == 'true'
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add package.json
-          git commit -m "chore: bump version to ${GITHUB_REF##*/} [skip ci]"
           git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
