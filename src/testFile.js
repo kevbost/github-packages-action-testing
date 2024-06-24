@@ -10,4 +10,5 @@ module.exports = {
   test8: "Hello World 8",
   test9: "Hello World 9",
   test10: "Hello World 10",
+  test11: "Hello World 11",
 };
