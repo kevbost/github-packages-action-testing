@@ -1,0 +1,19 @@
+{
+  "name": "@kevbost/github-packages-action-testing",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevbost/github-packages-action-testing.git"
+  },
+  "author": "kevbost",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kevbost/github-packages-action-testing/issues"
+  },
+  "homepage": "https://github.com/kevbost/github-packages-action-testing#readme",
+  "description": ""
+}
