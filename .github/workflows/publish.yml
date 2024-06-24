@@ -36,26 +36,7 @@ jobs:
           git add package.json
           git commit -m "chore: bump version" || exit 0  # Ensure it doesn't fail if there's nothing to commit
 
-      - name: 🏷️ Check for new version
-        uses: EndBug/version-check@v2
-        id: check
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          diff-search: true
-
-      - name: 🎉 Version update detected
-        if: steps.check.outputs.changed == 'true'
-        run: 'echo "Version change found! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
-
-      - name: 📬 Commit version bump
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git push origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 📭 Publish package to GitHub Package Registry
-        if: steps.check.outputs.changed == 'true'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
