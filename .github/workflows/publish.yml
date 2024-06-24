@@ -100,6 +100,7 @@ jobs:
         run: |
           git add package.json
           git commit -m "chore: bump version" || exit 0 # Ensure it doesn't fail if there's nothing to commit
+          git push --all
 
       - name: 📭 Publish package to GitHub Package Registry
         run: npm publish

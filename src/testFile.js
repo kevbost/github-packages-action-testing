@@ -7,4 +7,5 @@ module.exports = {
   test5: "Hello World 5",
   test6: "Hello World 6",
   test7: "Hello World 7",
+  test8: "Hello World 8",
 };
