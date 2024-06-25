@@ -69,7 +69,15 @@ jobs:
       - name: 🔨 Install dependencies
         run: npm install
 
+      - name: 🏷️ Check version
+        uses: EndBug/version-check@v2
+        id: check
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+
       - name: 🔄 Determine version bump type
+        if: steps.check.outputs.changed == 'false'
         id: version
         run: |
           # Get the diff statistics (additions and deletions) for the current branch compared to main
@@ -86,11 +94,13 @@ jobs:
           fi
 
       - name: 🏷️ Set Git Config
+        if: steps.check.outputs.changed == 'false'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: 🔄 Bump version and push changes
+        if: steps.check.outputs.changed == 'false'
         run: |
           # Use the version_type output from the previous step to bump the correct version
           VERSION_TYPE=${{ steps.version.outputs.version_type }}
@@ -102,6 +112,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📭 Publish package to GitHub Package Registry
+        if: steps.check.outputs.changed == 'false'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
