@@ -85,7 +85,7 @@ jobs:
           echo "$DIFF"
 
           # Check if there are deletions in the diff
-          if echo "$DIFF" | grep -q -E 'files changed, ([0-9]+) insertions\(\+\), ([0-9]+) deletions\(\-\)'; then
+          if echo "$DIFF" | grep -q -E 'files changed,.*([0-9]+) deletions\(\-\)'; then
             # If there are deletions, bump minor version
             echo "::set-output name=version_type::minor"
           else
