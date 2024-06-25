@@ -87,10 +87,10 @@ jobs:
           # Check if there are deletions in the diff
           if echo "$DIFF" | grep -q -E 'files changed,.*([0-9]+) deletions\(\-\)'; then
             # If there are deletions, bump minor version
-            echo "::set-output name=version_type::minor"
+            echo "version_type=minor" >> $GITHUB_ENV
           else
             # If only additions, bump patch version
-            echo "::set-output name=version_type::patch"
+            echo "version_type=patch" >> $GITHUB_ENV
           fi
 
       - name: 🏷️ Set Git Config
@@ -103,13 +103,13 @@ jobs:
         if: steps.check.outputs.changed == 'false'
         run: |
           # Use the version_type output from the previous step to bump the correct version
-          VERSION_TYPE=${{ steps.version.outputs.version_type }}
-          npm version $VERSION_TYPE
+          npm version ${{ env.VERSION_TYPE }}
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin main
           git push origin main --tags
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TYPE: ${{ env.version_type }}
 
       - name: 📭 Publish package to GitHub Package Registry
         run: npm publish
