@@ -84,9 +84,8 @@ jobs:
           NUM_PARENTS=$(git rev-list --count --parents -n 1 HEAD)
 
           if [[ "$NUM_PARENTS" -gt 2 ]]; then
-            # It's a merge commit, compare with the common ancestor of the merge
-            BASE_SHA=$(git merge-base HEAD^1 HEAD^2)
-            DIFF=$(git diff --shortstat $BASE_SHA HEAD)
+            # It's a merge commit, compare with origin/main
+            DIFF=$(git diff --shortstat origin/main HEAD)
           else
             # Not a merge commit, compare with the parent commit
             DIFF=$(git diff --shortstat HEAD^ HEAD)
@@ -95,7 +94,7 @@ jobs:
           echo "$DIFF"
 
           # Check if there are deletions in the diff
-          if echo "$DIFF" | grep -q -E 'files changed,.*([0-9]+) deletions\(\-\)'; then
+          if echo "$DIFF" | grep -q -E '([0-9]+) deletions\(\-\)'; then
             # If there are deletions, bump minor version
             echo "version_type=minor" >> $GITHUB_ENV
           else
