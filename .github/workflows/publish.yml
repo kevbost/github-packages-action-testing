@@ -105,6 +105,8 @@ jobs:
           # Use the version_type output from the previous step to bump the correct version
           VERSION_TYPE=${{ steps.version.outputs.version_type }}
           npm version $VERSION_TYPE
+          VERSION_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+          git commit --amend -m "${VERSION_TAG} [BOT] bump version"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin main
           git push origin main --tags
