@@ -80,8 +80,14 @@ jobs:
         if: steps.check.outputs.changed == 'false'
         id: version
         run: |
-          # Get the diff statistics (additions and deletions) for the current branch compared to main
-          DIFF=$(git diff --shortstat origin/main)
+          # Check if there is a merge commit in the history
+          if git log -1 | grep -q 'Merge pull request'; then
+            # Get the diff statistics for the current branch compared to origin/main
+            DIFF=$(git diff --shortstat origin/main)
+          else
+            # Get the diff statistics for the current commit compared to its parent
+            DIFF=$(git diff --shortstat HEAD^ HEAD)
+          fi
           echo "$DIFF"
 
           # Check if there are deletions in the diff
