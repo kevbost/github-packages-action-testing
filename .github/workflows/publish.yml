@@ -80,14 +80,18 @@ jobs:
         if: steps.check.outputs.changed == 'false'
         id: version
         run: |
-          # Check if there is a merge commit in the history
-          if git log -1 | grep -q 'Merge pull request'; then
-            # Get the diff statistics for the current branch compared to origin/main
-            DIFF=$(git diff --shortstat origin/main)
+          # Check if the commit is a merge commit by counting the number of parents
+          NUM_PARENTS=$(git rev-list --count --parents -n 1 HEAD)
+
+          if [[ "$NUM_PARENTS" -gt 2 ]]; then
+            # It's a merge commit, compare with the common ancestor of the merge
+            BASE_SHA=$(git merge-base HEAD^1 HEAD^2)
+            DIFF=$(git diff --shortstat $BASE_SHA HEAD)
           else
-            # Get the diff statistics for the current commit compared to its parent
+            # Not a merge commit, compare with the parent commit
             DIFF=$(git diff --shortstat HEAD^ HEAD)
           fi
+
           echo "$DIFF"
 
           # Check if there are deletions in the diff
