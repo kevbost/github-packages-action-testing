@@ -1,8 +1,0 @@
-{
-  "[yaml]": {
-    "editor.autoIndent": "advanced"
-  },
-  "[github-actions-workflow]": {
-    "editor.autoIndent": "advanced"
-  }
-}
