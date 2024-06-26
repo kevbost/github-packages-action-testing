@@ -38,6 +38,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🔄 Authenticate gh CLI
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+
       - name: 🏷️ Check version
         uses: EndBug/version-check@v2
         id: check
@@ -86,15 +90,19 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           npm version ${{ env.VERSION_TYPE }}
-          git commit -am "chore: [bot] version bump to ${{ env.VERSION_TYPE }}"
+
+          # Debugging: Check the git status to ensure changes are being tracked
+          git status
+
+          # Debugging: Show changes to be committed
+          git diff --cached
+
+          git add .
+          git commit -m "chore: [bot] version bump to ${{ env.VERSION_TYPE }}"
           git push origin $BRANCH_NAME
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION_TYPE: ${{ env.version_type }}
-
-      - name: 🔄 Authenticate gh CLI
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
 
       - name: 📭 Create pull request
         if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false'}}
