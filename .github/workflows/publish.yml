@@ -8,6 +8,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: 🚀 Checkout repository
@@ -25,6 +28,14 @@ jobs:
 
       - name: 🔨 Install dependencies
         run: npm install
+
+      - name: 🛠️ Set up GitHub credentials
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔄 Determine version bump type
         id: version
@@ -59,20 +70,11 @@ jobs:
             echo "version_type=patch" >> $GITHUB_ENV
           fi
 
-      - name: 🏷️ Set Git Config
-        if: ${{ env.VERSION_TYPE }}
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@users.noreply.github.com'
-        env:
-          VERSION_TYPE: ${{ env.version_type }}
-
       - name: 🔄 Bump version and push changes
         if: ${{ env.VERSION_TYPE }}
         run: |
           # Use the version_type output from the previous step to bump the correct version
           npm version ${{ env.VERSION_TYPE }}
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin main
           git push origin main --tags
         env:
@@ -80,6 +82,8 @@ jobs:
           VERSION_TYPE: ${{ env.version_type }}
 
       - name: 📭 Publish package to GitHub Package Registry
+        if: ${{ env.VERSION_TYPE }}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TYPE: ${{ env.version_type }}
