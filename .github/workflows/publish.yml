@@ -37,7 +37,15 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🏷️ Check version
+        uses: EndBug/version-check@v2
+        id: check
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          diff-search: true
+
       - name: 🔄 Determine version bump type
+        if: steps.check.outputs.changed == 'false'
         id: version
         run: |
           # Fetch all branches to ensure diff comparison works correctly
@@ -71,7 +79,7 @@ jobs:
           fi
 
       - name: 🔄 Bump version and push changes
-        if: ${{ env.VERSION_TYPE }}
+        if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false' }}
         run: |
           # Use the version_type output from the previous step to bump the correct version
           npm version ${{ env.VERSION_TYPE }}
@@ -82,7 +90,7 @@ jobs:
           VERSION_TYPE: ${{ env.version_type }}
 
       - name: 📭 Publish package to GitHub Package Registry
-        if: ${{ env.VERSION_TYPE }}
+        if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'true'}}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
