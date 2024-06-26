@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pull-requests: write
 
     steps:
       - name: 🚀 Checkout repository
@@ -78,16 +79,40 @@ jobs:
             echo "version_type=patch" >> $GITHUB_ENV
           fi
 
-      - name: 🔄 Bump version and push changes
+      - name: 🔄 Bump version and create branch
         if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false' }}
         run: |
-          # Use the version_type output from the previous step to bump the correct version
+          BRANCH_NAME="bot/version-bump-$(date +'%Y%m%d%H%M%S')"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b $BRANCH_NAME
           npm version ${{ env.VERSION_TYPE }}
-          git push origin main
-          git push origin main --tags
+          git commit -am "chore: [bot] version bump to ${{ env.VERSION_TYPE }}"
+          git push origin $BRANCH_NAME
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION_TYPE: ${{ env.version_type }}
+
+      - name: 🔄 Authenticate gh CLI
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+
+      - name: 📭 Create pull request
+        if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false'}}
+        run: |
+          gh pr create --repo ${{ github.repository }} --head ${{ env.BRANCH_NAME }} --title "[bot] Version bump to ${{ env.VERSION_TYPE }}" --body "This is an automatic version bump to ${{ env.VERSION_TYPE }}."
+        env:
+          VERSION_TYPE: ${{ env.version_type }}
+          BRANCH_NAME: ${{ env.branch_name }}
+
+      - name: 🔄 Merge pull request
+        if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false'}}
+        run: |
+          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
+          gh pr merge $PR_NUMBER --repo ${{ github.repository }} --squash --delete-branch
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TYPE: ${{ env.version_type }}
+          BRANCH_NAME: ${{ env.branch_name }}
 
       - name: 📭 Publish package to GitHub Package Registry
         if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'true'}}
