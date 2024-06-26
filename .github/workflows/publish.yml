@@ -86,7 +86,7 @@ jobs:
       - name: 🔄 Bump version and create branch
         if: ${{ env.VERSION_TYPE || steps.check.outputs.changed == 'false' }}
         run: |
-          BRANCH_NAME="bot/version-bump-$(date +'%Y%m%d%H%M%S')"
+          BRANCH_NAME="bot-version-bump-$(date +'%Y%m%d%H%M%S')"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           npm version ${{ env.VERSION_TYPE }}
@@ -97,7 +97,7 @@ jobs:
           # Debugging: Show changes to be committed
           git diff --cached
 
-          git add .
+          git add package.json package-lock.json
           git commit -m "chore: [bot] version bump to ${{ env.VERSION_TYPE }}"
           git push origin $BRANCH_NAME
         env:
